@@ -1,0 +1,55 @@
+runtime: nodejs18
+
+service: vectordb-service
+
+env_variables:
+  NODE_ENV: "production"
+  ASTRA_DB_ID: "your-database-id"
+  ASTRA_DB_REGION: "your-region"
+  ASTRA_DB_KEYSPACE: "vectordb"
+  ASTRA_DB_APPLICATION_TOKEN: "your-application-token"
+  API_KEY: "your-secure-api-key"
+  DEFAULT_VECTOR_DIMENSIONS: "1536"
+  MAX_VECTOR_DIMENSIONS: "4096"
+  MAX_BATCH_SIZE: "100"
+  RATE_LIMIT_WINDOW_MS: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 10
+  target_cpu_utilization: 0.6
+
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10
+
+handlers:
+- url: /.*
+  script: auto
+  secure: always
+  redirect_http_response_code: 301
+
+health_check:
+  enable_health_check: true
+  check_interval_sec: 30
+  timeout_sec: 4
+  unhealthy_threshold: 2
+  healthy_threshold: 1
+  restart_threshold: 60
+
+readiness_check:
+  path: "/health"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 1
+  app_start_timeout_sec: 300
+
+liveness_check:
+  path: "/health"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 4
+  success_threshold: 1
